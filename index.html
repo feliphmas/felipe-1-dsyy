@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Felipe Fialho Cruz — Design System</title>
+<meta name="preview-ready-selector" content="body.ds-overview-ready">
+<meta name="preview-ready-after-ms" content="4000">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2305070a'/%3E%3Ccircle cx='16' cy='17' r='8' fill='%23e0231c'/%3E%3Crect x='4' y='8' width='24' height='2.6' fill='%23dfe7e0'/%3E%3Crect x='7' y='13' width='18' height='2' fill='%23dfe7e0'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/overview/secret-pathways-assets/fonts.css">
+<link rel="stylesheet" href="assets/overview/secret-pathways-assets/kage.css">
+<style>
+/* ================================================================ catalog shell
+   Routing and layout only. Every visual rule of the specimens comes from the
+   Overview's own kage.css; the overrides below only take fixed/absolute page
+   furniture out of the viewport and into its specimen box. */
+html, body{ height:100%; }
+body{ overflow:hidden; }
+#overview-frame{ position:fixed; inset:0; width:100%; height:100%; border:0; display:block; z-index:0; background:#05070a; }
+.nav-link[aria-disabled="true"]{ opacity:.38; pointer-events:none; }
+
+/* ------------------------------------------------------------ components view */
+#view-components{ position:fixed; inset:0; z-index:10; display:none; padding-top:var(--nav-h); }
+body.is-components #view-components{ display:grid; grid-template-columns:200px minmax(0,1fr); }
+body.is-components #overview-frame{ pointer-events:none; }
+#view-components::before{ content:''; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:rgba(4,7,10,.62); transition:opacity .8s var(--ease); }
+body.ds-scene-clear #view-components::before{ opacity:0; }
+#ds-side{ overflow:auto; padding:30px 12px 40px var(--pad); display:flex; flex-direction:column; gap:1px;
+  background:rgba(5,7,10,.62); -webkit-backdrop-filter:blur(14px) saturate(1.1); backdrop-filter:blur(14px) saturate(1.1);
+  border-right:1px solid var(--line-soft); }
+#ds-side a{ display:flex; gap:10px; padding:7px 0; font-size:10px; font-weight:500; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--muted); text-shadow:0 1px 16px rgba(3,6,8,.9); transition:color .35s; }
+#ds-side a b{ font-weight:500; font-variant-numeric:tabular-nums; }
+#ds-side a:hover, #ds-side a.is-current{ color:var(--bone); }
+#ds-side a.is-current b{ color:var(--vermilion); }
+#ds-main{ overflow:auto; overflow-x:hidden; padding:30px var(--pad) 160px clamp(12px,2vw,34px); }
+#ds-main .ds-group{ padding:0 0 clamp(70px,11vh,130px); scroll-margin-top:24px; }
+#ds-main .ds-group > .sec-head{ margin-bottom:clamp(28px,4.4vh,52px); }
+.ds-spec{ margin:0 0 clamp(44px,6.5vh,72px); }
+.ds-spec:last-child{ margin-bottom:0; }
+.ds-spec > h3{ margin:0 0 18px; font-size:11px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--bone); }
+.ds-sub{ margin:34px 0 16px; font-size:10px; font-weight:500; letter-spacing:.22em; text-transform:uppercase; color:var(--bone-dim); }
+.ds-sub:first-child{ margin-top:0; }
+.ds-meta{ display:block; margin-top:14px; font:11px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--muted);
+  letter-spacing:0; text-transform:none; }
+.ds-note{ margin:8px 0 0; max-width:74ch; font-size:12px; line-height:1.6; color:#9aa5a0; }
+.ds-live{ position:relative; max-width:100%; }
+.ds-meta, .ds-type .sizes, .ds-type .face code{ overflow-wrap:anywhere; }
+.ds-row{ display:flex; flex-wrap:wrap; gap:30px 48px; align-items:flex-end; }
+.ds-state{ display:flex; flex-direction:column; align-items:flex-start; gap:14px; }
+.ds-state > small{ font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:var(--muted); }
+
+/* typography rows: role | live sample | declared size */
+.ds-type{ display:grid; grid-template-columns:170px minmax(0,1fr) 230px; gap:30px; align-items:center;
+  padding:26px 0; border-top:1px solid var(--line-soft); }
+.ds-type:last-child{ border-bottom:1px solid var(--line-soft); }
+.ds-type .role{ font-size:11px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--bone); }
+.ds-type .face{ margin-top:6px; font-size:11px; color:var(--muted); }
+.ds-type .face code, .ds-type .sizes{ font:11px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace; }
+.ds-type .face code{ display:block; margin-top:4px; color:#5f6a64; }
+.ds-type .sizes{ color:var(--bone-dim); text-align:right; }
+.ds-type .sample{ min-width:0; }
+#ds-main .ds-type .sample *{ margin-top:0; margin-bottom:0; }
+#ds-main .ds-type .fin{ display:block; min-height:0; text-align:left; }
+#ds-main .ds-type .fin h2{ writing-mode:horizontal-tb; font-size:clamp(38px,7.4vw,124px); justify-self:start; }
+#ds-main .ds-type .hero-side{ position:static; transform:none; display:block; }
+#ds-main .ds-type .gate-stats, #ds-main .ds-type .gate-stats div{ display:block; margin:0; padding:0; border:0; min-height:0; }
+#ds-main .ds-type .foot-brand{ display:block; padding:0; margin:0; border:0; }
+#ds-main .ds-type .les{ display:block; min-height:0; padding:0; background:none; }
+#ds-main .ds-type .les::before{ display:none; }
+#ds-main .ds-type .card-lab{ position:static; }
+#ds-main .ds-type .arrowlink, #ds-main .ds-type .hero-cue{ margin:0; }
+#ds-main .ds-type .chip{ cursor:default; }
+
+/* colours: live chip on its own surface + label, value, token, use */
+.ds-colors{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:22px 28px; }
+.ds-sw{ display:grid; grid-template-columns:78px minmax(0,1fr); gap:14px; align-items:start; }
+.ds-chip{ position:relative; height:78px; display:grid; place-items:center; overflow:hidden; background:var(--ink);
+  outline:1px solid var(--line-soft); outline-offset:-1px; }
+.ds-chip.on-scene{ background:transparent; }
+.ds-chip .aa{ font-size:30px; font-weight:300; letter-spacing:-.02em; line-height:1; }
+.ds-chip .fill{ position:absolute; inset:0; }
+.ds-chip .edge{ position:absolute; inset:16px; }
+.ds-sw strong{ display:block; font-size:12px; font-weight:500; color:var(--bone); }
+.ds-sw code{ display:block; margin-top:3px; font:11px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--bone-dim); word-break:break-word; }
+.ds-sw code.tok{ color:var(--muted); }
+.ds-sw p{ margin:4px 0 0; font-size:11px; line-height:1.45; color:var(--muted); }
+.ds-family{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; margin-bottom:18px; }
+.ds-family > div > small{ display:block; margin-top:8px; font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:var(--muted); }
+.ds-family > div > code{ display:block; margin-top:3px; font:11px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--bone-dim); }
+.ds-family .ds-chip{ height:64px; }
+.ds-famname{ margin:0 0 10px; font-size:12px; font-weight:500; color:var(--bone); }
+
+/* backgrounds */
+.ds-window{ height:min(62vh,620px); outline:1px solid var(--line); outline-offset:-1px; }
+.ds-stations{ display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+.ds-stations button{ padding:9px 14px; border:1px solid var(--line); border-radius:100px; font-size:10px; font-weight:500;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--bone-dim); transition:color .35s, border-color .35s, background .35s; }
+.ds-stations button:hover{ color:var(--bone); border-color:var(--bone-dim); }
+.ds-stations button.on{ color:#05070a; background:var(--bone); border-color:var(--bone); }
+.ds-stage{ position:relative; height:440px; overflow:hidden; isolation:isolate; outline:1px solid var(--line-soft); outline-offset:-1px; }
+#ds-main .ds-stage .fg{ position:absolute; left:0; right:0; top:0; bottom:0; height:auto; z-index:0; }
+.ds-scrims{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:18px; }
+.ds-scrim{ position:relative; height:300px; overflow:hidden; isolation:isolate; outline:1px solid var(--line-soft); outline-offset:-1px; }
+#ds-main .ds-scrim > .sec, #ds-main .ds-scrim > .hero, #ds-main .ds-scrim > .foot{ position:absolute; inset:0; min-height:0; padding:0; border:0; }
+.ds-scrim > small{ position:absolute; left:14px; bottom:12px; z-index:3; font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:var(--bone-dim); }
+
+/* surfaces */
+.ds-surfaces{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:22px; align-items:start; }
+.ds-surface{ height:170px; position:relative; }
+#ds-main .ds-surface .nav{ position:absolute; inset:0; width:auto; height:auto; z-index:0; transform:none; }
+#ds-main .ds-surface .cur{ height:100%; grid-template-columns:repeat(2,1fr); }
+#ds-main .ds-surface .les{ min-height:0; grid-column:span 1; cursor:default; }
+.ds-surface .card-fr{ height:100%; aspect-ratio:auto; }
+
+/* icons: five to a row, id under each */
+.ds-icons{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:34px 20px; }
+.ds-icon{ display:flex; flex-direction:column; align-items:flex-start; gap:14px; }
+.ds-icon .stage{ height:52px; display:flex; align-items:center; }
+.ds-icon code{ font:11px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--bone-dim); }
+.ds-icon small{ display:block; font-size:11px; color:var(--muted); }
+#ds-main .ds-icon .nav-burger{ margin-left:0; }
+
+/* motion */
+.ds-ease{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+.ds-ease > div{ padding:16px 0; border-top:1px solid var(--line-soft); }
+.ds-ease strong{ display:block; font-size:12px; font-weight:500; color:var(--bone); }
+.ds-ease code{ display:block; margin-top:4px; font:11px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--bone-dim); }
+.ds-ease p{ margin:6px 0 0; font-size:11px; line-height:1.45; color:var(--muted); }
+.ds-replay{ display:flex; width:max-content; margin-top:26px; }
+#ds-main .ds-motion .hero-top{ padding-top:0; max-width:none; }
+
+/* live components taken out of the page's fixed furniture */
+#ds-main .nav.ds-navspec{ position:relative; width:auto; z-index:auto; transform:none; padding:0 26px; }
+#ds-main .ds-hero{ min-height:0; padding:0; }
+#ds-main .ds-hero .hero-top{ padding-top:clamp(22px,4vh,40px); }
+#ds-main .peek{ position:relative; inset:auto; width:clamp(200px,20vw,300px); display:block; }
+#ds-main .cards{ padding-inline:max(20px, calc(48px - var(--pad))); }
+#ds-main .rail{ position:static; transform:none; align-items:flex-start; }
+#ds-main .ds-hero-foot{ width:min(480px,100%); padding-bottom:0; }
+#ds-main .gate-stats{ margin-top:0; }
+#ds-main .arrowlink, #ds-main .cta{ margin-top:0; }
+#ds-main .fin.ds-fin{ min-height:0; padding:clamp(30px,6vh,70px) 0; }
+#ds-main .foot.ds-foot{ padding-left:26px; padding-right:26px; }
+#ds-main #pre{ position:relative; inset:auto; z-index:auto; height:340px; }
+#ds-main .cur-dot{ position:relative; top:auto; left:auto; margin:0; opacity:1; transform:none; }
+.ds-cursor-row{ display:flex; gap:48px; align-items:center; min-height:60px; }
+
+@media (max-width:1080px){
+  .ds-type{ grid-template-columns:130px minmax(0,1fr); }
+  .ds-type .sizes{ grid-column:2; text-align:left; }
+  .ds-icons{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .ds-ease{ grid-template-columns:1fr; }
+}
+@media (max-width:820px){
+  body.is-components #view-components{ grid-template-columns:1fr; grid-template-rows:auto minmax(0,1fr); }
+  #ds-side{ flex-direction:row; overflow-x:auto; gap:22px; padding:14px var(--pad); border-right:0; border-bottom:1px solid var(--line-soft);
+    background:rgba(5,7,10,.62); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
+  #ds-side a{ flex:0 0 auto; }
+  #ds-main{ padding-left:var(--pad); }
+  .ds-type{ grid-template-columns:1fr; gap:14px; }
+  .ds-type .sizes{ grid-column:auto; }
+  .ds-icons{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+</style>
+</head>
+<body data-layout-hero="b" data-layout-story="b" data-layout-gallery="b"
+      data-layout-curriculum="b" data-layout-closing="b" data-layout-footer="b">
+
+<header class="nav" id="nav">
+  <a class="brand" href="#overview">
+    <svg viewBox="0 0 44 44" fill="none" aria-hidden="true">
+      <circle cx="22" cy="25" r="8.6" fill="#e0231c" fill-opacity=".9"/>
+      <path d="M5 13h34M9 18.4h26M22 8.5v27" stroke="#dfe7e0" stroke-width="1.5"/>
+      <path d="M14 35.5h16" stroke="#dfe7e0" stroke-width="1.2" stroke-opacity=".6"/>
+    </svg>
+    <span class="brand-tx"><b>FELIPE CRUZ</b><i>DESIGN SYSTEM</i></span>
+  </a>
+  <nav class="nav-links" id="navlinks">
+    <a class="nav-link on" id="nav-overview" href="#overview"><span>Overview</span><span class="alt">Portfólio</span></a>
+    <a class="nav-link" id="nav-components" href="#components"><span>Components</span><span class="alt">Catálogo</span></a>
+  </nav>
+  <button class="nav-burger" aria-label="Menu" aria-controls="navlinks" aria-expanded="false"><i></i><i></i></button>
+</header>
+
+<iframe id="overview-frame" title="Overview" src="assets/overview/index.html"></iframe>
+
+<div id="view-components">
+<aside id="ds-side">
+  <a href="#components-typography"><b>01</b>Typography</a>
+  <a href="#components-colors"><b>02</b>Colors</a>
+  <a href="#components-backgrounds"><b>03</b>Backgrounds</a>
+  <a href="#components-surfaces"><b>04</b>Surfaces</a>
+  <a href="#components-icons"><b>05</b>Icons</a>
+  <a href="#components-motion"><b>06</b>Motion</a>
+  <a href="#components-actions"><b>07</b>Actions</a>
+  <a href="#components-navigation"><b>08</b>Navigation</a>
+  <a href="#components-cards"><b>09</b>Cards</a>
+  <a href="#components-data"><b>10</b>Data display</a>
+  <a href="#components-content"><b>11</b>Content groups</a>
+  <a href="#components-feedback"><b>12</b>Feedback</a>
+</aside>
+<main id="ds-main">
+
+<!-- ============================================================ 01 typography -->
+<section class="ds-group" id="components-typography">
+  <div class="sec-head"><span class="k"><b>01</b> — Typography</span><span class="rule"></span></div>
+
+  <div class="ds-type">
+    <div><div class="role">Display closing</div><div class="face">Onest · 400 · uppercase<code>.fin h2</code></div></div>
+    <div class="sample"><div class="fin"><h2 class="display">Evoluir</h2></div></div>
+    <div class="sizes">clamp(52px,6vw,82px) vertical | clamp(38px,7.4vw,124px)</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Heading 2</div><div class="face">Onest · 400 · uppercase<code>.display.h-sec</code></div></div>
+    <div class="sample"><h2 class="display h-sec" style="max-width:16ch">Transformar ideias em soluções que ajudam pessoas.</h2></div>
+    <div class="sizes">clamp(30px,4.0vw,60px)</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Vertical title</div><div class="face">NotoJP · Onest · 400<code>.hero-side .v.jp</code></div></div>
+    <div class="sample"><div class="hero-side"><span class="v jp">ETEC · SP</span></div></div>
+    <div class="sizes">clamp(30px,3.2vw,54px) | 13px</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Index numeral</div><div class="face">Onest · 300 · tabular<code>.chip .num</code></div></div>
+    <div class="sample"><div class="chip"><span class="num">01</span></div></div>
+    <div class="sizes">clamp(29px,3.1vw,48px) | clamp(26px,8vw,36px) | clamp(22px,7.4vw,30px)</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Heading 1</div><div class="face">Onest · 400 · uppercase<code>h1.display.h-hero</code></div></div>
+    <div class="sample"><h1 class="display h-hero rv-in">
+      <span class="mask-line"><span>Felipe</span></span>
+      <span class="mask-line"><span>Fialho</span></span>
+      <span class="mask-line"><span>Cruz.</span></span>
+    </h1></div>
+    <div class="sizes">clamp(26px,3.05vw,46px)</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Caption mark</div><div class="face">NotoJP · Onest · 400<code>.peek-cap b.jp</code></div></div>
+    <div class="sample"><span class="peek-cap"><b class="jp">02</b></span></div>
+    <div class="sizes">clamp(20px,2.2vw,34px) | 11px</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Statistic</div><div class="face">Onest · 300<code>.gate-stats b</code></div></div>
+    <div class="sample"><div class="gate-stats"><div><b>2023</b></div></div></div>
+    <div class="sizes">clamp(22px,2.1vw,32px)</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Manifesto</div><div class="face">Onest · 300<code>.foot-brand p</code></div></div>
+    <div class="sample"><div class="foot-brand"><p>Felipe Fialho Cruz — Estudante de Desenvolvimento de Sistemas na ETEC Dra. Maria Augusta Saraiva,
+        transformando ideias em projetos reais.</p></div></div>
+    <div class="sizes">clamp(18px,2vw,30px) | 13px</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Plate title</div><div class="face">Onest · 400<code>.les h3</code></div></div>
+    <div class="sample"><div class="les"><h3>EchoMind<em class="jp">Startup</em></h3></div></div>
+    <div class="sizes">clamp(20px,2vw,30px) | clamp(16px,1.5vw,23px)</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Lead</div><div class="face">Onest · 300<code>.gate-copy .lead</code></div></div>
+    <div class="sample"><div class="gate-copy"><p class="lead">Meu nome é Felipe Fialho Cruz. Conquistei minha aprovação em primeira chamada no
+        Vestibulinho da ETEC e atualmente curso Desenvolvimento de Sistemas na ETEC Dra. Maria Augusta Saraiva.</p></div></div>
+    <div class="sizes">clamp(15px,1.16vw,19px)</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Text large</div><div class="face">Onest · 300<code>.body-lg</code></div></div>
+    <div class="sample"><p class="body-lg">Startup desenvolvida durante o primeiro ano do curso de Desenvolvimento de Sistemas
+      e a paixão pelo esporte que fortalece disciplina, consistência, dedicação e evolução pessoal.</p></div>
+    <div class="sizes">clamp(14px,1.02vw,17px)</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Card title</div><div class="face">Onest · 400 · uppercase<code>.card-lab b</code></div></div>
+    <div class="sample"><div class="card-lab"><b>EchoMind</b><span class="jp">Startup</span></div></div>
+    <div class="sizes">clamp(13px,1.15vw,17px)</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Text</div><div class="face">Onest · 300<code>.body</code></div></div>
+    <div class="sample"><p class="body">Estudante de Desenvolvimento de Sistemas, interessado em tecnologia,
+      desenvolvimento de projetos e aprendizado contínuo para transformar ideias em projetos reais.</p></div>
+    <div class="sizes">14px</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Plate text</div><div class="face">Onest · 300<code>.les p</code></div></div>
+    <div class="sample"><div class="les"><p>O basquete e a musculação me ensinaram disciplina, consistência, dedicação e evolução.</p></div></div>
+    <div class="sizes">13px</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Wordmark</div><div class="face">Onest · 500 · .26em<code>.brand-tx b</code></div></div>
+    <div class="sample"><span class="brand-tx"><b>FELIPE CRUZ</b></span></div>
+    <div class="sizes">12px</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Button</div><div class="face">Onest · 500 · .2em · uppercase<code>.arrowlink · .cta · .nav-link</code></div></div>
+    <div class="sample"><span class="arrowlink"><span>Explorar projetos desenvolvidos</span></span></div>
+    <div class="sizes">11px | 17px menu sheet</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Eyebrow</div><div class="face">Onest · 500 · .22em · uppercase<code>.eyebrow</code></div></div>
+    <div class="sample"><div class="eyebrow">Capítulo 04 — Meu objetivo</div></div>
+    <div class="sizes">10px</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Meta</div><div class="face">Onest · 500 · .24em · uppercase<code>.sec-head .k</code></div></div>
+    <div class="sample"><div class="sec-head" style="margin:0"><span class="k"><b>01</b> — Sobre mim</span></div></div>
+    <div class="sizes">10px</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Cue</div><div class="face">Onest · 300 · .3em · uppercase<code>.hero-cue</code></div></div>
+    <div class="sample"><div class="hero-cue"><span>Role para explorar</span></div></div>
+    <div class="sizes">9px</div>
+  </div>
+  <div class="ds-type">
+    <div><div class="role">Tagline</div><div class="face">Onest · 300 · .34em<code>.brand-tx i</code></div></div>
+    <div class="sample"><span class="brand-tx"><i>DESENVOLVIMENTO DE SISTEMAS · ETEC</i></span></div>
+    <div class="sizes">8px</div>
+  </div>
+</section>
+
+<!-- ============================================================ 02 colors -->
+<section class="ds-group" id="components-colors">
+  <div class="sec-head"><span class="k"><b>02</b> — Colors</span><span class="rule"></span></div>
+
+  <p class="ds-sub">Brand and Accent</p>
+  <div class="ds-colors">
+    <div class="ds-sw"><span class="ds-chip"><span class="edge" style="background:#e0231c; border-radius:50%; inset:22px; box-shadow:0 0 10px #e0231c"></span></span>
+      <div><strong>Vermilion accent</strong><code>#e0231c</code><code class="tok">--vermilion</code><p>Ponto da eyebrow, numeração das seções, sublinhado ativo, barra das placas e seleção de texto.</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="aa" style="color:#ff5a3c">01</span></span>
+      <div><strong>Ember highlight</strong><code>#ff5a3c</code><code class="tok">--ember</code><p>Numeral do índice no hover e quando o capítulo correspondente está ativo.</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="aa" style="color:#fff; background:#e0231c; padding:4px 6px; font-size:22px">Aa</span></span>
+      <div><strong>Selection</strong><code>#e0231c / #fff</code><p>Fundo e cor do texto selecionado (::selection).</p></div></div>
+  </div>
+
+  <p class="ds-sub">Surfaces</p>
+  <div class="ds-colors">
+    <div class="ds-sw"><span class="ds-chip" style="background:#05070a"></span>
+      <div><strong>Page black</strong><code>#05070a</code><code class="tok">--ink</code><p>Fundo base do body, cena WebGL e preloader.</p></div></div>
+    <div class="ds-sw"><span class="ds-chip on-scene"><span class="fill" style="background:rgba(5,7,10,.62); -webkit-backdrop-filter:blur(14px) saturate(1.1); backdrop-filter:blur(14px) saturate(1.1)"></span></span>
+      <div><strong>Frosted wash</strong><code>rgba(5,7,10,.62) · blur(14px) saturate(1.1)</code><p>Navbar após rolagem (.nav.stuck) e barra lateral do catálogo.</p></div></div>
+    <div class="ds-sw"><span class="ds-chip on-scene"><span class="fill" style="background:rgba(5,7,10,.84)"></span></span>
+      <div><strong>Plate</strong><code>rgba(5,7,10,.84)</code><p>Placas do grid de Projetos &amp; Interesses (.les).</p></div></div>
+    <div class="ds-sw"><span class="ds-chip on-scene"><span class="fill" style="background:rgba(3,6,9,.98)"></span></span>
+      <div><strong>Menu sheet</strong><code>rgba(3,6,9,.98)</code><p>Painel de navegação mobile abaixo de 820px.</p></div></div>
+  </div>
+
+  <p class="ds-sub">Text and Icons</p>
+  <div class="ds-colors">
+    <div class="ds-sw"><span class="ds-chip"><span class="aa" style="color:#dfe7e0">Aa</span></span>
+      <div><strong>Primary text</strong><code>#dfe7e0</code><code class="tok">--bone</code><p>Títulos, wordmark, traços de ícones e rótulos ativos.</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="aa" style="color:#c2cdc5">Aa</span></span>
+      <div><strong>Lead text</strong><code>#c2cdc5</code><p>Parágrafo de destaque (.gate-copy .lead).</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="aa" style="color:#b4bfb7">Aa</span></span>
+      <div><strong>Large text</strong><code>#b4bfb7</code><p>Textos introdutórios de capítulo (.body-lg).</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="aa" style="color:#aab4ad">Aa</span></span>
+      <div><strong>Secondary text</strong><code>#aab4ad</code><code class="tok">--bone-dim</code><p>Eyebrows, links em repouso e rótulos secundários.</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="aa" style="color:#9aa5a0">Aa</span></span>
+      <div><strong>Body text</strong><code>#9aa5a0</code><p>Corpo de texto padrão (.body).</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="aa" style="color:#909b95">Aa</span></span>
+      <div><strong>Plate text</strong><code>#909b95</code><p>Descrição das placas (.les p).</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="aa" style="color:#8f9a93">Aa</span></span>
+      <div><strong>Footer link</strong><code>#8f9a93</code><p>Links do rodapé em repouso (.foot li a).</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="aa" style="color:#8b958f">01</span></span>
+      <div><strong>Tag meta</strong><code>#8b958f</code><p>Metadado de destaque no rodapé da placa (.les .t).</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="aa" style="color:#7d8781">Aa</span></span>
+      <div><strong>Index caption</strong><code>#7d8781</code><p>Subtexto dos chips de capítulo (.chip p).</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="aa" style="color:#78837c">Aa</span></span>
+      <div><strong>Muted meta</strong><code>#78837c</code><code class="tok">--muted</code><p>Metadados de seção, cards, tagline e cabeçalhos do rodapé.</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="aa jp" style="color:rgba(223,231,224,.62)">SP</span></span>
+      <div><strong>Secondary mark</strong><code>rgba(223,231,224,.62)</code><p>Rótulo vertical do hero e marcadores secundários (.jp).</p></div></div>
+  </div>
+
+  <p class="ds-sub">Borders</p>
+  <div class="ds-colors">
+    <div class="ds-sw"><span class="ds-chip"><span class="edge" style="border:1px solid rgba(223,231,224,.13); border-radius:50%"></span></span>
+      <div><strong>Line</strong><code>rgba(223,231,224,.13)</code><code class="tok">--line</code><p>Círculo da seta, pill CTA e trilho de rolagem.</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="edge" style="border-top:1px solid rgba(223,231,224,.07)"></span></span>
+      <div><strong>Hairline</strong><code>rgba(223,231,224,.07)</code><code class="tok">--line-soft</code><p>Linhas divisórias, grid das placas e contorno de card em repouso.</p></div></div>
+    <div class="ds-sw"><span class="ds-chip"><span class="edge" style="background:rgba(223,231,224,.14); height:1px; inset:auto 12px 38px"></span></span>
+      <div><strong>Loader track</strong><code>rgba(223,231,224,.14)</code><p>Trilho da barra de carregamento (.pre-bar).</p></div></div>
+  </div>
+
+  <p class="ds-sub">Interactive States</p>
+  <p class="ds-famname">Nav link</p>
+  <div class="ds-family">
+    <div><span class="ds-chip"><span class="aa" style="color:#aab4ad; font-size:11px; font-weight:500; letter-spacing:.2em">SOBRE MIM</span></span><small>Default</small><code>#aab4ad</code></div>
+    <div><span class="ds-chip"><span class="aa" style="color:#dfe7e0; font-size:11px; font-weight:500; letter-spacing:.32em">ETEC</span></span><small>Hover</small><code>#dfe7e0 · alt roll</code></div>
+    <div><span class="ds-chip"><span class="aa" style="color:#dfe7e0; font-size:11px; font-weight:500; letter-spacing:.2em; border-bottom:1px solid #e0231c; padding-bottom:3px">SOBRE MIM</span></span><small>Selected</small><code>#dfe7e0 + #e0231c</code></div>
+  </div>
+  <p class="ds-famname">Pill CTA</p>
+  <div class="ds-family">
+    <div><span class="ds-chip"><span class="edge" style="border:1px solid rgba(223,231,224,.13); border-radius:100px; inset:22px 10px"></span></span><small>Default</small><code>--line · #dfe7e0 text</code></div>
+    <div><span class="ds-chip"><span class="edge" style="background:#dfe7e0; border-radius:100px; inset:22px 10px"></span></span><small>Hover</small><code>#dfe7e0 fill · #05070a text</code></div>
+  </div>
+  <p class="ds-famname">Progress rail tick</p>
+  <div class="ds-family">
+    <div><span class="ds-chip"><span class="edge" style="background:rgba(223,231,224,.26); height:1px; width:14px; inset:auto; position:static"></span></span><small>Default</small><code>rgba(223,231,224,.26)</code></div>
+    <div><span class="ds-chip"><span class="edge" style="background:#aab4ad; height:1px; width:22px; inset:auto; position:static"></span></span><small>Hover</small><code>#aab4ad</code></div>
+    <div><span class="ds-chip"><span class="edge" style="background:#dfe7e0; height:1px; width:22px; inset:auto; position:static"></span></span><small>Selected</small><code>#dfe7e0</code></div>
+  </div>
+  <p class="ds-famname">Frames and cursor</p>
+  <div class="ds-family">
+    <div><span class="ds-chip"><span class="edge" style="outline:1px solid rgba(223,231,224,.07)"></span></span><small>Card · default</small><code>--line-soft</code></div>
+    <div><span class="ds-chip"><span class="edge" style="outline:1px solid rgba(223,231,224,.30)"></span></span><small>Card · hover</small><code>rgba(223,231,224,.30)</code></div>
+    <div><span class="ds-chip"><span class="edge" style="outline:1px solid rgba(223,231,224,.16)"></span></span><small>Window · default</small><code>rgba(223,231,224,.16)</code></div>
+    <div><span class="ds-chip"><span class="edge" style="outline:1px solid rgba(223,231,224,.42)"></span></span><small>Window · hover</small><code>rgba(223,231,224,.42)</code></div>
+    <div><span class="ds-chip"><span class="edge" style="border:1px solid rgba(223,231,224,.42); border-radius:50%; inset:26px"></span></span><small>Cursor · default</small><code>rgba(223,231,224,.42)</code></div>
+    <div><span class="ds-chip"><span class="edge" style="border:1px solid rgba(223,231,224,.6); background:rgba(223,231,224,.07); border-radius:50%; inset:13px"></span></span><small>Cursor · active</small><code>.6 border · .07 fill</code></div>
+  </div>
+  <p class="ds-famname">Plate hover wash</p>
+  <div class="ds-family">
+    <div><span class="ds-chip"><span class="fill" style="background:linear-gradient(145deg,rgba(224,35,28,.13),transparent 58%)"></span></span><small>Hover</small><code>rgba(224,35,28,.13)</code></div>
+  </div>
+
+  <p class="ds-sub">Overlays</p>
+  <div class="ds-colors">
+    <div class="ds-sw"><span class="ds-chip on-scene"><span class="fill" style="background:radial-gradient(125% 95% at 50% 42%, transparent 40%, rgba(2,4,6,.55) 100%)"></span></span>
+      <div><strong>Vignette</strong><code>rgba(2,4,6,.55)</code><p>Vinheta global sobre toda a cena (#vignette).</p></div></div>
+    <div class="ds-sw"><span class="ds-chip on-scene"><span class="fill" style="background:linear-gradient(180deg,rgba(3,6,9,.04) 36%,rgba(3,6,9,.72) 100%)"></span></span>
+      <div><strong>Plate scrim</strong><code>rgba(3,6,9,.72)</code><p>Gradiente inferior dos cards de projeto.</p></div></div>
+    <div class="ds-sw"><span class="ds-chip on-scene"><span class="fill" style="background:linear-gradient(rgba(3,6,9,.72), rgba(3,6,9,.34) 46%, transparent)"></span></span>
+      <div><strong>Hero wash</strong><code>rgba(3,6,9,.72 → .34)</code><p>Lavagem superior atrás do título no hero.</p></div></div>
+    <div class="ds-sw"><span class="ds-chip on-scene"><span class="fill" style="background:radial-gradient(closest-side, rgba(255,142,108,.50), rgba(212,56,38,.24) 40%, transparent 72%); mix-blend-mode:screen"></span></span>
+      <div><strong>Moon glow</strong><code>rgba(255,142,108,.50) · rgba(212,56,38,.24)</code><p>Brilho .glow nos cards em blend screen.</p></div></div>
+    <div class="ds-sw"><span class="ds-chip on-scene"><span class="fill" style="background:radial-gradient(closest-side, rgba(255,198,124,.62), rgba(226,118,40,.30) 40%, transparent 72%); mix-blend-mode:screen"></span></span>
+      <div><strong>Lantern flame</strong><code>rgba(255,198,124,.62) · rgba(226,118,40,.30)</code><p>Variação .glow--flame no card central.</p></div></div>
+    <div class="ds-sw"><span class="ds-chip on-scene"><span class="aa" style="color:#dfe7e0; text-shadow:0 2px 34px rgba(3,6,8,.72)">Aa</span></span>
+      <div><strong>Type halo</strong><code>0 2px 34px rgba(3,6,8,.72)</code><p>Sombra tipográfica que destaca títulos sobre a cena.</p></div></div>
+  </div>
+</section>
+
+<!-- ============================================================ 03 backgrounds -->
+<section class="ds-group" id="components-backgrounds">
+  <div class="sec-head"><span class="k"><b>03</b> — Backgrounds</span><span class="rule"></span></div>
+
+  <article class="ds-spec">
+    <h3>Scrollytelling Background</h3>
+    <div class="ds-live ds-window" role="img" aria-label="Vídeo de fundo controlado pelo scroll"></div>
+    <div class="ds-stations" role="group" aria-label="Estação de scroll">
+      <button type="button" data-station="0" class="on">00 · hero</button>
+      <button type="button" data-station="1">01 · sobre</button>
+      <button type="button" data-station="2">02 · echomind</button>
+      <button type="button" data-station="3">03 · trajetória</button>
+      <button type="button" data-station="4">04 · objetivo</button>
+      <button type="button" data-station="5">05 · rodapé</button>
+    </div>
+    <p class="ds-note">O fundo vivo desta visualização é o próprio Overview estacionado em um dos seis capítulos [data-cam]. As estações percorrem o vídeo em tela cheia (#bg-video) controlado pelo scroll, com vinheta (#vignette) e grão (#grain) preservados.</p>
+    <code class="ds-meta">video#bg-video · 1280×720 · scroll-scrubbed · #vignette · #grain · section[data-cam]</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Near-plane stages</h3>
+    <div class="ds-row" style="flex-direction:column; align-items:stretch; gap:18px">
+      <div class="ds-stage">
+        <div class="fg" data-fg="gate" aria-hidden="true">
+          <span class="fg-el fg-wall" data-fg-in="left"><img src="assets/overview/secret-pathways-assets/foreground/png/temple-wall.webp" alt="" width="1536" height="884" loading="lazy" decoding="async"></span>
+          <span class="fg-el fg-pine" data-fg-in="right"><img src="assets/overview/secret-pathways-assets/foreground/png/pine-tree.webp" alt="" width="1024" height="1438" loading="lazy" decoding="async"></span>
+          <span class="fg-el fg-grass" data-fg-in="up"><img src="assets/overview/secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async"></span>
+        </div>
+      </div>
+      <code class="ds-meta" style="margin-top:0">[data-fg="gate"] · wall ← · pine → · grass ↑</code>
+      <div class="ds-stage">
+        <div class="fg" data-fg="pathways" aria-hidden="true">
+          <span class="fg-el fg-sakura fg-el--sway" data-fg-in="left"><img src="assets/overview/secret-pathways-assets/foreground/png/sakura-branch.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async"></span>
+          <span class="fg-el fg-leaves fg-el--sway" data-fg-in="right"><img src="assets/overview/secret-pathways-assets/foreground/png/maple-leaves.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async"></span>
+          <span class="fg-el fg-lantern" data-fg-in="up"><img src="assets/overview/secret-pathways-assets/foreground/png/stone-lantern.webp" alt="" width="1024" height="1499" loading="lazy" decoding="async"></span>
+          <span class="fg-el fg-bush" data-fg-in="up"><img src="assets/overview/secret-pathways-assets/foreground/png/garden-bush.webp" alt="" width="1717" height="876" loading="lazy" decoding="async"></span>
+        </div>
+      </div>
+      <code class="ds-meta" style="margin-top:0">[data-fg="pathways"] · sakura &amp; maple sway (fg-sway 21s) · lanterna acesa</code>
+      <div class="ds-stage">
+        <div class="fg" data-fg="lessons" aria-hidden="true">
+          <span class="fg-el fg-wall fg-el--flip" data-fg-in="right"><img src="assets/overview/secret-pathways-assets/foreground/png/temple-wall.webp" alt="" width="1536" height="884" loading="lazy" decoding="async"></span>
+          <span class="fg-el fg-stones" data-fg-in="up"><img src="assets/overview/secret-pathways-assets/foreground/png/basalt-stones.webp" alt="" width="1536" height="996" loading="lazy" decoding="async"></span>
+          <span class="fg-el fg-grass" data-fg-in="up"><img src="assets/overview/secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async"></span>
+        </div>
+      </div>
+      <code class="ds-meta" style="margin-top:0">[data-fg="lessons"] · flipped wall · basalt · grass</code>
+      <div class="ds-stage">
+        <div class="fg" data-fg="eternity" aria-hidden="true">
+          <span class="fg-el fg-hill" data-fg-in="up"><img src="assets/overview/secret-pathways-assets/foreground/png/hill.webp" alt="" width="1774" height="887" loading="lazy" decoding="async"></span>
+          <span class="fg-el fg-ruins" data-fg-in="left"><img src="assets/overview/secret-pathways-assets/foreground/png/shrine-ruins.webp" alt="" width="1536" height="1001" loading="lazy" decoding="async"></span>
+          <span class="fg-el fg-grass" data-fg-in="up"><img src="assets/overview/secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async"></span>
+          <span class="fg-el fg-sakura" data-fg-in="left"><img src="assets/overview/secret-pathways-assets/foreground/png/sakura-branch.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async"></span>
+        </div>
+      </div>
+      <code class="ds-meta" style="margin-top:0">[data-fg="eternity"] · hill · shrine ruins · grass · branch</code>
+      <div class="ds-stage">
+        <div class="fg" data-fg="foot" aria-hidden="true">
+          <span class="fg-el fg-bush" data-fg-in="up"><img src="assets/overview/secret-pathways-assets/foreground/png/garden-bush.webp" alt="" width="1717" height="876" loading="lazy" decoding="async"></span>
+          <span class="fg-el fg-grass" data-fg-in="up"><img src="assets/overview/secret-pathways-assets/foreground/png/tall-grass.webp" alt="" width="1717" height="916" loading="lazy" decoding="async"></span>
+          <span class="fg-el fg-stones" data-fg-in="up"><img src="assets/overview/secret-pathways-assets/foreground/png/basalt-stones.webp" alt="" width="1536" height="996" loading="lazy" decoding="async"></span>
+        </div>
+      </div>
+      <code class="ds-meta" style="margin-top:0">[data-fg="foot"] · bush · grass · stones</code>
+    </div>
+    <p class="ds-note">Cada capítulo possui um palco de recortes em primeiro plano que entra a partir das bordas quando .fg-active é ativado ao rolar até o bloco.</p>
+    <code class="ds-meta">.fg · .fg-el · [data-fg-in] · .fg.fg-active · .fg-el--sway · .fg-el--flip</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Chapter scrims</h3>
+    <div class="ds-scrims">
+      <div class="ds-scrim"><div class="hero"></div><small>.hero::before</small></div>
+      <div class="ds-scrim"><div class="sec"></div><small>.sec::before</small></div>
+      <div class="ds-scrim"><div class="sec" id="pathways"></div><small>#pathways::before</small></div>
+      <div class="ds-scrim"><div class="sec" id="eternity"></div><small>#eternity::before</small></div>
+      <div class="ds-scrim"><div class="foot"></div><small>.foot::before</small></div>
+    </div>
+    <p class="ds-note">Camadas semitransparentes que garantem leitura do texto sobre a cena WebGL sem criar degraus bruscos.</p>
+  </article>
+</section>
+
+<!-- ============================================================ 04 surfaces -->
+<section class="ds-group" id="components-surfaces">
+  <div class="sec-head"><span class="k"><b>04</b> — Surfaces</span><span class="rule"></span></div>
+  <div class="ds-surfaces">
+    <article class="ds-spec">
+      <h3>Ink ground</h3>
+      <div class="ds-surface" style="background:var(--ink)"></div>
+      <code class="ds-meta">body · #pre · #gl — var(--ink)</code>
+    </article>
+    <article class="ds-spec">
+      <h3>Frosted bar</h3>
+      <div class="ds-surface"><div class="nav stuck"></div></div>
+      <code class="ds-meta">.nav.stuck::before · ::after hairline</code>
+    </article>
+    <article class="ds-spec">
+      <h3>Atlas plate</h3>
+      <div class="ds-surface"><div class="cur"><div class="les"></div><div class="les"></div></div></div>
+      <code class="ds-meta">.cur · .les — 1px --line-soft seams</code>
+    </article>
+    <article class="ds-spec">
+      <h3>Card frame</h3>
+      <div class="ds-surface"><div class="card-fr"></div></div>
+      <code class="ds-meta">.card-fr · outline --line-soft · ::after scrim</code>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ 05 icons -->
+<section class="ds-group" id="components-icons">
+  <div class="sec-head"><span class="k"><b>05</b> — Icons</span><span class="rule"></span></div>
+  <div class="ds-icons">
+    <div class="ds-icon"><div class="stage"><span class="brand" style="display:block"><svg viewBox="0 0 44 44" fill="none" aria-hidden="true">
+      <circle cx="22" cy="25" r="8.6" fill="#e0231c" fill-opacity=".9"/>
+      <path d="M5 13h34M9 18.4h26M22 8.5v27" stroke="#dfe7e0" stroke-width="1.5"/>
+      <path d="M14 35.5h16" stroke="#dfe7e0" stroke-width="1.2" stroke-opacity=".6"/>
+    </svg></span></div><div><code>.brand svg</code><small>Marca · 34px</small></div></div>
+    <div class="ds-icon"><div class="stage"><span class="pre-mark" style="margin:0"><svg viewBox="0 0 44 44" fill="none" aria-hidden="true">
+        <circle cx="22" cy="24" r="9.5" stroke="#e0231c" stroke-width="1.2"/>
+        <path d="M6 12h32M9.5 17h25M22 8v28" stroke="#dfe7e0" stroke-width="1.2"/>
+      </svg></span></div><div><code>.pre-mark svg</code><small>Loader · 44px</small></div></div>
+    <div class="ds-icon"><div class="stage"><span class="arrowlink" style="margin:0"><span class="ar" style="border-color:transparent"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span></span></div><div><code>.ar svg · .card-ar</code><small>Seta · 13px</small></div></div>
+    <div class="ds-icon"><div class="stage"><span class="peek-play" style="position:static; aspect-ratio:auto"><svg viewBox="0 0 22 22" fill="none"><path d="M8 5.6 16.4 11 8 16.4z" fill="#dfe7e0"/></svg></span></div><div><code>.peek-play svg</code><small>Play · clamp(30px,3.2vw,46px)</small></div></div>
+    <div class="ds-icon"><div class="stage"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2305070a'/%3E%3Ccircle cx='16' cy='17' r='8' fill='%23e0231c'/%3E%3Crect x='4' y='8' width='24' height='2.6' fill='%23dfe7e0'/%3E%3Crect x='7' y='13' width='18' height='2' fill='%23dfe7e0'/%3E%3C/svg%3E" width="32" height="32" alt=""></div><div><code>link[rel=icon]</code><small>Favicon · 32px</small></div></div>
+    <div class="ds-icon"><div class="stage"><button class="nav-burger" type="button" aria-label="Menu"><i></i><i></i></button></div><div><code>.nav-burger</code><small>Menu · 26×16 · hover inverte barras</small></div></div>
+  </div>
+</section>
+
+<!-- ============================================================ 06 motion -->
+<section class="ds-group ds-motion" id="components-motion">
+  <div class="sec-head"><span class="k"><b>06</b> — Motion</span><span class="rule"></span></div>
+  <article class="ds-spec">
+    <h3>Easing</h3>
+    <div class="ds-ease">
+      <div><strong>--ease</strong><code>cubic-bezier(.22,.61,.36,1)</code><p>Ocultação da navbar, fundo fosco, preenchimento do CTA, fade do preloader e lavagem das placas.</p></div>
+      <div><strong>--ease-out</strong><code>cubic-bezier(.16,1,.3,1)</code><p>Revelação de texto, rolagem do link na nav, seta dos cards, entrada dos recortes e anel do cursor.</p></div>
+      <div><strong>--ease-io</strong><code>cubic-bezier(.65,0,.35,1)</code><p>Loop da pista de scroll, respiração do brilho nos cards e balanço suave do primeiro plano.</p></div>
+    </div>
+  </article>
+  <article class="ds-spec">
+    <h3>Reveal</h3>
+    <div class="ds-live ds-reveal">
+      <div class="hero-top">
+        <div class="eyebrow" data-rv="fade"><span class="dot"></span> Estudante de Desenvolvimento de Sistemas | ETEC</div>
+        <h1 class="display h-hero">
+          <span class="mask-line word-reveal" aria-label="Felipe"><span class="word-mask" aria-hidden="true"><span class="word" style="--word-delay:0ms">Felipe</span></span></span>
+          <span class="mask-line word-reveal" aria-label="Fialho"><span class="word-mask" aria-hidden="true"><span class="word" style="--word-delay:0ms">Fialho</span></span></span>
+          <span class="mask-line word-reveal" aria-label="Cruz."><span class="word-mask" aria-hidden="true"><span class="word" style="--word-delay:0ms">Cruz.</span></span></span>
+        </h1>
+        <p class="hero-sub body" data-rv="up" style="margin-top:18px">Estudante de Desenvolvimento de Sistemas, interessado em tecnologia,
+      desenvolvimento de projetos e aprendizado contínuo para transformar ideias em projetos reais.</p>
+      </div>
+      <h2 class="display h-sec word-reveal" data-rv="up" aria-label="EchoMind. Basquete. Musculação." style="margin-top:40px; max-width:18ch"><span class="word-mask" aria-hidden="true"><span class="word" style="--word-delay:0ms">EchoMind.</span></span> <span class="word-mask" aria-hidden="true"><span class="word" style="--word-delay:72ms">Basquete.</span></span> <span class="word-mask" aria-hidden="true"><span class="word" style="--word-delay:144ms">Musculação.</span></span></h2>
+    </div>
+    <button type="button" class="arrowlink ds-replay" data-replay><span>Replay</span><span class="ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span></button>
+    <p class="ds-note">Títulos se dividem em máscaras por palavra que sobem 112% → 0 com atraso de 72ms (.82s --ease-out); [data-rv="up"] sobe 26px com fade (.9s / 1.05s) e [data-rv="fade"] apenas surge em opacidade.</p>
+    <code class="ds-meta">[data-rv] · .rv-in · .mask-line · .word-reveal .word · --word-delay</code>
+  </article>
+</section>
+
+<!-- ============================================================ 07 actions -->
+<section class="ds-group" id="components-actions">
+  <div class="sec-head"><span class="k"><b>07</b> — Actions</span><span class="rule"></span></div>
+  <div class="ds-row">
+    <article class="ds-spec">
+      <h3>Arrow link</h3>
+      <a class="arrowlink" href="#components-actions">
+        <span>Explorar projetos desenvolvidos</span>
+        <span class="ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+      </a>
+      <p class="ds-note">No hover preenche o círculo em --bone e desloca a seta 2px na diagonal.</p>
+      <code class="ds-meta">.arrowlink · .ar</code>
+    </article>
+    <article class="ds-spec">
+      <h3>Pill CTA</h3>
+      <a class="cta" href="#components-actions">
+        <i></i><span>Voltar ao início</span>
+        <svg viewBox="0 0 14 14" fill="none" width="13" height="13"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg>
+      </a>
+      <p class="ds-note">No hover desliza preenchimento --bone de baixo para cima (.62s) e inverte o texto para --ink.</p>
+      <code class="ds-meta">.cta · .cta i</code>
+    </article>
+    <article class="ds-spec">
+      <h3>Menu button</h3>
+      <button class="nav-burger" type="button" aria-label="Menu" style="margin-left:0"><i></i><i></i></button>
+      <p class="ds-note">No hover inverte o comprimento das barras; abaixo de 820px .active forma o X.</p>
+      <code class="ds-meta">.nav-burger · .active</code>
+    </article>
+  </div>
+</section>
+
+<!-- ============================================================ 08 navigation -->
+<section class="ds-group" id="components-navigation">
+  <div class="sec-head"><span class="k"><b>08</b> — Navigation</span><span class="rule"></span></div>
+
+  <article class="ds-spec">
+    <h3>Navbar</h3>
+    <div class="ds-state" style="align-items:stretch">
+      <small>Default · sobre a cena</small>
+      <header class="nav ds-navspec">
+        <a class="brand" href="#components-navigation">
+          <svg viewBox="0 0 44 44" fill="none" aria-hidden="true">
+            <circle cx="22" cy="25" r="8.6" fill="#e0231c" fill-opacity=".9"/>
+            <path d="M5 13h34M9 18.4h26M22 8.5v27" stroke="#dfe7e0" stroke-width="1.5"/>
+            <path d="M14 35.5h16" stroke="#dfe7e0" stroke-width="1.2" stroke-opacity=".6"/>
+          </svg>
+          <span class="brand-tx"><b>FELIPE CRUZ</b><i>DESENVOLVIMENTO DE SISTEMAS · ETEC</i></span>
+        </a>
+        <nav class="nav-links">
+          <a class="nav-link on" href="#components-navigation"><span>Sobre mim</span><span class="alt">ETEC</span></a>
+          <a class="nav-link" href="#components-navigation"><span>EchoMind</span><span class="alt">Projeto</span></a>
+          <a class="nav-link" href="#components-navigation"><span>Esportes</span><span class="alt">Rotina</span></a>
+          <a class="nav-link" href="#components-navigation"><span>Objetivo</span><span class="alt">Futuro</span></a>
+        </nav>
+        <button class="nav-burger" type="button" aria-label="Menu"><i></i><i></i></button>
+      </header>
+      <small style="margin-top:14px">Stuck · após 40px de scroll</small>
+      <header class="nav ds-navspec stuck">
+        <a class="brand" href="#components-navigation">
+          <svg viewBox="0 0 44 44" fill="none" aria-hidden="true">
+            <circle cx="22" cy="25" r="8.6" fill="#e0231c" fill-opacity=".9"/>
+            <path d="M5 13h34M9 18.4h26M22 8.5v27" stroke="#dfe7e0" stroke-width="1.5"/>
+            <path d="M14 35.5h16" stroke="#dfe7e0" stroke-width="1.2" stroke-opacity=".6"/>
+          </svg>
+          <span class="brand-tx"><b>FELIPE CRUZ</b><i>DESENVOLVIMENTO DE SISTEMAS · ETEC</i></span>
+        </a>
+        <nav class="nav-links">
+          <a class="nav-link" href="#components-navigation"><span>Sobre mim</span><span class="alt">ETEC</span></a>
+          <a class="nav-link on" href="#components-navigation"><span>EchoMind</span><span class="alt">Projeto</span></a>
+          <a class="nav-link" href="#components-navigation"><span>Esportes</span><span class="alt">Rotina</span></a>
+          <a class="nav-link" href="#components-navigation"><span>Objetivo</span><span class="alt">Futuro</span></a>
+        </nav>
+        <button class="nav-burger" type="button" aria-label="Menu"><i></i><i></i></button>
+      </header>
+    </div>
+    <p class="ds-note">Barra fixa de 84px. Ganha fundo fosco e hairline após 40px de rolagem, oculta ao rolar para baixo além de 80% da viewport e retorna ao subir.</p>
+    <code class="ds-meta">header.nav · .stuck · .hide · .menu-open · --nav-h: 84px</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Nav link</h3>
+    <div class="ds-row">
+      <div class="ds-state"><small>Default</small><a class="nav-link" href="#components-navigation"><span>Sobre mim</span><span class="alt">ETEC</span></a></div>
+      <div class="ds-state"><small>Selected</small><a class="nav-link on" href="#components-navigation"><span>Sobre mim</span><span class="alt">ETEC</span></a></div>
+    </div>
+    <p class="ds-note">No hover o rótulo principal sobe e revela a etiqueta alternativa (.alt) por baixo (.55s --ease-out).</p>
+    <code class="ds-meta">.nav-link · .alt · .on</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Chapter index</h3>
+    <div class="hero-foot ds-hero-foot">
+      <div class="chapters">
+        <div class="chip on" data-chip="0"><span class="num">01</span>
+          <span class="tx"><b>Sobre mim</b><p>Aprovação em primeira chamada na ETEC Dra. Maria Augusta Saraiva.</p></span></div>
+        <div class="chip" data-chip="1"><span class="num">02</span>
+          <span class="tx"><b>EchoMind</b><p>Startup de acompanhamento emocional e apoio educacional.</p></span></div>
+        <div class="chip" data-chip="2"><span class="num">03</span>
+          <span class="tx"><b>Basquete &amp; Treino</b><p>Disciplina, consistência, dedicação e evolução desde 2023.</p></span></div>
+        <div class="chip" data-chip="3"><span class="num">04</span>
+          <span class="tx"><b>Meu objetivo</b><p>Desenvolver habilidades em tecnologia e participar de novos projetos.</p></span></div>
+      </div>
+    </div>
+    <p class="ds-note">01 exibe .on (--ember). No hover o numeral acende em --ember e sobe 2px; na página também foca os pontos de luz da cena.</p>
+    <code class="ds-meta">.chapters · .chip · .num · .tx · .on</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Progress rail</h3>
+    <div class="rail">
+      <button type="button" aria-label="Início"><i></i></button>
+      <button type="button" aria-label="Sobre mim" class="on"><i></i></button>
+      <button type="button" aria-label="EchoMind"><i></i></button>
+      <button type="button" aria-label="Projetos &amp; Interesses"><i></i></button>
+      <button type="button" aria-label="Meu objetivo"><i></i></button>
+      <button type="button" aria-label="Rodapé"><i></i></button>
+    </div>
+    <p class="ds-note">Um marcador por seção [data-cam] fixado à direita; o item ativo estende para 22px. Oculto abaixo de 820px.</p>
+    <code class="ds-meta">.rail button i · .on</code>
+  </article>
+</section>
+
+<!-- ============================================================ 09 cards -->
+<section class="ds-group" id="components-cards">
+  <div class="sec-head"><span class="k"><b>09</b> — Cards</span><span class="rule"></span></div>
+
+  <article class="ds-spec">
+    <h3>Project cards</h3>
+    <div class="cards">
+      <article class="card" data-view="0">
+        <div class="card-fr" data-frame>
+          <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+          <i class="glow" style="--gx:80.2%; --gy:23.9%; --gr:22%; --gt:6.1s; --gt2:9.7s; --gc1:rgba(255,142,108,.50); --gc2:rgba(212,56,38,.24)"></i>
+          <div class="card-lab"><b>EchoMind</b><span class="jp">Startup</span></div>
+        </div>
+        <div class="card-meta"><span>1º Ano · Desenv. de Sistemas</span><span>01 / 03</span></div>
+      </article>
+      <article class="card" data-view="1">
+        <div class="card-fr" data-frame>
+          <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+          <i class="glow glow--flame" style="--gx:70.5%; --gy:47.2%; --gr:14%; --gt:3.7s; --gt2:5.3s; --gc1:rgba(255,198,124,.62); --gc2:rgba(226,118,40,.30)"></i>
+          <div class="card-lab"><b>Bem-estar</b><span class="jp">Cuidado</span></div>
+        </div>
+        <div class="card-meta"><span>Acompanhamento emocional</span><span>02 / 03</span></div>
+      </article>
+      <article class="card" data-view="2">
+        <div class="card-fr" data-frame>
+          <span class="card-ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+          <i class="glow" style="--gx:48.0%; --gy:16.8%; --gr:20%; --gt:7.3s; --gt2:11.2s; --gc1:rgba(255,138,104,.52); --gc2:rgba(208,54,36,.24)"></i>
+          <div class="card-lab"><b>Educação</b><span class="jp">Escola</span></div>
+        </div>
+        <div class="card-meta"><span>Apoio educacional</span><span>03 / 03</span></div>
+      </article>
+    </div>
+    <p class="ds-note">Mosaico de três cards sobre tecido WebGL2 (malha 96×96 reagindo ao cursor via cloth.js), com brilho pulsante (.glow / .glow--flame) destacando os pilares da EchoMind.</p>
+    <code class="ds-meta">.cards · .card · .card-fr · .glow · .glow--flame · .card-lab · .card-meta · .cloth-out (cloth.js)</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Scene window</h3>
+    <a class="peek" href="#components-cards" aria-label="Preview: Projeto EchoMind">
+      <span class="peek-fr" data-frame></span>
+      <span class="peek-play"><svg viewBox="0 0 22 22" fill="none"><path d="M8 5.6 16.4 11 8 16.4z" fill="#dfe7e0"/></svg></span>
+      <span class="peek-cap"><b class="jp">02</b><i>EchoMind — Startup Educacional</i></span>
+    </a>
+    <p class="ds-note">Moldura 16:10 exibida no hero; no hover eleva 5px, clareia a borda e amplia o ícone de play.</p>
+    <code class="ds-meta">.peek · .peek-fr · .peek-play · .peek-cap</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Chapter atlas</h3>
+    <div class="cur">
+      <div class="les" data-les="0"><span class="k">01</span><h3>EchoMind<em class="jp">Startup</em></h3>
+        <p>Junto com meus amigos, desenvolvi a ideia da EchoMind, voltada ao acompanhamento emocional e ao apoio educacional em instituições de ensino.</p><span class="t">1º Ano DS</span><i class="bar"></i></div>
+      <div class="les" data-les="1"><span class="k">02</span><h3>Apoio ao Estudante<em class="jp">Ensino</em></h3>
+        <p>A proposta reúne recursos para auxiliar os estudantes em duas áreas importantes da vida acadêmica: o bem-estar emocional e o aprendizado.</p><span class="t">Propósito</span><i class="bar"></i></div>
+      <div class="les" data-les="2"><span class="k">03</span><h3>Ambiente Escolar<em class="jp">Tech</em></h3>
+        <p>O projeto surgiu da vontade de contribuir positivamente para a escola, usando tecnologia para aproximar cuidado emocional da educação.</p><span class="t">Inovação</span><i class="bar"></i></div>
+      <div class="les" data-les="3"><span class="k">04</span><h3>Basquete &amp; Musculação<em class="jp">2023</em></h3>
+        <p>Além da tecnologia, o esporte faz parte da minha vida. Minha paixão começou no final dos meus 12 anos, em 2023, mantendo uma rotina ativa.</p><span class="t">Esporte</span><i class="bar"></i></div>
+      <div class="les" data-les="4"><span class="k">05</span><h3>Disciplina &amp; Rotina<em class="jp">Foco</em></h3>
+        <p>Sempre gostei de experimentar esportes e habilidades físicas. O basquete e a musculação me ensinaram disciplina, consistência, dedicação e evolução.</p><span class="t">Constância</span><i class="bar"></i></div>
+    </div>
+    <p class="ds-note">Grid de 2+3 placas. O hover aplica lavagem --vermilion, desloca a placa em 8px e desenha a barra na base.</p>
+    <code class="ds-meta">.cur · .les · .k · .t · .bar</code>
+  </article>
+</section>
+
+<!-- ============================================================ 10 data display -->
+<section class="ds-group" id="components-data">
+  <div class="sec-head"><span class="k"><b>10</b> — Data display</span><span class="rule"></span></div>
+  <article class="ds-spec">
+    <h3>Stats band</h3>
+    <div class="gate-stats">
+      <div><b>1ª</b><span>Chamada ETEC</span></div>
+      <div><b>DS</b><span>Desenv. Sistemas</span></div>
+      <div><b>SP</b><span>Campos Elíseos</span></div>
+      <div><b>2023</b><span>Início no Esporte</span></div>
+    </div>
+    <p class="ds-note">Quatro células divididas por hairlines; reorganiza em 2×2 abaixo de 820px.</p>
+    <code class="ds-meta">.gate-stats</code>
+  </article>
+</section>
+
+<!-- ============================================================ 11 content groups -->
+<section class="ds-group" id="components-content">
+  <div class="sec-head"><span class="k"><b>11</b> — Content groups</span><span class="rule"></span></div>
+
+  <article class="ds-spec">
+    <h3>Hero lead</h3>
+    <div class="hero ds-hero">
+      <div class="hero-top">
+        <div class="eyebrow"><span class="dot"></span> Estudante de Desenvolvimento de Sistemas | ETEC</div>
+        <h1 class="display h-hero rv-in">
+          <span class="mask-line"><span>Felipe</span></span>
+          <span class="mask-line"><span>Fialho</span></span>
+          <span class="mask-line"><span>Cruz.</span></span>
+        </h1>
+        <p class="hero-sub body">Estudante de Desenvolvimento de Sistemas, interessado em tecnologia,
+      desenvolvimento de projetos e aprendizado contínuo para transformar ideias em projetos reais.</p>
+      </div>
+    </div>
+    <code class="ds-meta">.hero-top · .eyebrow .dot · h1.display.h-hero · .hero-sub</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Section header</h3>
+    <div class="sec-head" style="margin:0">
+      <span class="k"><b>02</b> — Projetos desenvolvidos</span><span class="rule"></span><span class="k jp">ECHOMIND</span>
+    </div>
+    <code class="ds-meta">.sec-head · .k b · .rule · .k.jp</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Story spread</h3>
+    <div class="gate-grid">
+      <h2 class="display h-sec">Transformar ideias em soluções que ajudam pessoas.</h2>
+      <div class="gate-copy">
+        <p class="lead">Meu nome é Felipe Fialho Cruz. Conquistei minha aprovação em primeira chamada no
+          Vestibulinho da ETEC e atualmente curso Desenvolvimento de Sistemas na ETEC Dra. Maria Augusta Saraiva,
+          localizada na região de Campos Elíseos, em São Paulo.</p>
+        <p class="body">Durante minha formação, venho desenvolvendo conhecimentos na área de tecnologia,
+          trabalhando em projetos e aprendendo a transformar ideias em soluções. Tenho interesse em continuar evoluindo,
+          tanto profissionalmente quanto pessoalmente, sempre buscando novos conhecimentos e experiências.</p>
+        <a class="arrowlink" href="#components-content" style="margin-top:34px">
+          <span>Explorar projetos desenvolvidos</span>
+          <span class="ar"><svg viewBox="0 0 14 14" fill="none"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg></span>
+        </a>
+      </div>
+    </div>
+    <code class="ds-meta">.gate-grid · .gate-copy · .lead + .body · .arrowlink</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Curriculum head</h3>
+    <div class="cur-head" style="margin-bottom:0">
+      <h2 class="display h-sec">EchoMind. Basquete. Musculação.</h2>
+      <p class="body-lg">Startup desenvolvida durante o primeiro ano do curso de Desenvolvimento de Sistemas
+      e a paixão pelo esporte que fortalece disciplina, consistência, dedicação e evolução pessoal.</p>
+    </div>
+    <code class="ds-meta">.cur-head</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Closing</h3>
+    <section class="fin ds-fin">
+      <div class="eyebrow">Capítulo 04 — Meu objetivo</div>
+      <h2 class="display">Evoluir</h2>
+      <p class="body-lg">Quero continuar desenvolvendo minhas habilidades na área de tecnologia, participar de novos
+    projetos e adquirir experiências que contribuam para minha formação profissional. Cada projeto é uma oportunidade de
+    aprender, experimentar e evoluir.</p>
+      <a class="cta" href="#components-content">
+        <i></i><span>Voltar ao início</span>
+        <svg viewBox="0 0 14 14" fill="none" width="13" height="13"><path d="M3 11 11 3M5 3h6v6" stroke="#dfe7e0" stroke-width="1.3"/></svg>
+      </a>
+    </section>
+    <code class="ds-meta">.fin — título em vertical-rl à direita no desktop e centralizado abaixo de 820px</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Colophon</h3>
+    <footer class="foot ds-foot">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <svg viewBox="0 0 44 44" fill="none" width="34" height="34" aria-hidden="true">
+            <circle cx="22" cy="25" r="8.6" fill="#e0231c" fill-opacity=".9"/>
+            <path d="M5 13h34M9 18.4h26M22 8.5v27" stroke="#dfe7e0" stroke-width="1.5"/>
+          </svg>
+          <p>Felipe Fialho Cruz — Estudante de Desenvolvimento de Sistemas na ETEC Dra. Maria Augusta Saraiva,
+            transformando ideias em projetos reais.</p>
+        </div>
+        <div><h4>Portfólio</h4><ul>
+          <li><a href="#components-content">Sobre mim</a></li>
+          <li><a href="#components-content">EchoMind</a></li>
+          <li><a href="#components-content">Trajetória &amp; Esporte</a></li>
+          <li><a href="#components-content">Meu objetivo</a></li>
+        </ul></div>
+        <div><h4>Destaques</h4><ul>
+          <li><a href="#components-content">ETEC M. A. Saraiva</a></li>
+          <li><a href="#components-content">Startup EchoMind</a></li>
+          <li><a href="#components-content">Basquete &amp; Musculação</a></li>
+          <li><a href="#components-content">Aprendizado Contínuo</a></li>
+        </ul></div>
+        <div><h4>Design System</h4><ul>
+          <li><a href="#components-content">Topo</a></li>
+          <li><a href="#components-content">Formação</a></li>
+          <li><a href="#components-content">São Paulo · SP</a></li>
+        </ul></div>
+      </div>
+      <div class="foot-base">
+        <span>© 2026 Felipe Fialho Cruz</span>
+        <span class="jp">TECNOLOGIA · DISCIPLINA · EVOLUÇÃO</span>
+        <span>ETEC · Campos Elíseos · SP</span>
+      </div>
+    </footer>
+    <code class="ds-meta">.foot · .foot-grid · .foot-brand · .foot-base</code>
+  </article>
+</section>
+
+<!-- ============================================================ 12 feedback -->
+<section class="ds-group" id="components-feedback">
+  <div class="sec-head"><span class="k"><b>12</b> — Feedback</span><span class="rule"></span></div>
+
+  <article class="ds-spec">
+    <h3>Preloader</h3>
+    <div id="pre">
+      <div class="pre-in">
+        <div class="pre-mark">
+          <svg viewBox="0 0 44 44" fill="none" aria-hidden="true">
+            <circle cx="22" cy="24" r="9.5" stroke="#e0231c" stroke-width="1.2"/>
+            <path d="M6 12h32M9.5 17h25M22 8v28" stroke="#dfe7e0" stroke-width="1.2"/>
+          </svg>
+        </div>
+        <div class="pre-jp jp">ETEC · SÃO PAULO</div>
+        <div class="pre-bar"><i style="right:36%"></i></div>
+        <div class="pre-meta">
+          <span>Preparando portfólio</span><b><span>64</span>%</b>
+        </div>
+      </div>
+    </div>
+    <p class="ds-note">Cobertura inicial em --ink enquanto a cena WebGL é montada em 12 etapas; desaparece com transição de .8s ao concluir o primeiro frame.</p>
+    <code class="ds-meta">#pre · .pre-bar i · .pre-meta · #pre.done</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Scroll cue</h3>
+    <div class="hero-cue" style="margin:0"><span>Role para explorar</span><span class="track"><i></i></span></div>
+    <p class="ds-note">O indicador percorre o trilho em loop de 2.8s (cue, --ease-io).</p>
+    <code class="ds-meta">.hero-cue · .track i · @keyframes cue</code>
+  </article>
+
+  <article class="ds-spec">
+    <h3>Cursor ring</h3>
+    <div class="ds-cursor-row">
+      <div class="ds-state"><small>Default</small><div class="cur-dot"></div></div>
+      <div class="ds-state"><small>Over a link</small><div class="cur-dot act"></div></div>
+    </div>
+    <p class="ds-note">Anel de 26px que segue o ponteiro (lerp .18) e expande para 52px sobre alvos [data-cursor].</p>
+    <code class="ds-meta">.cur-dot · .act</code>
+  </article>
+</section>
+
+</main>
+</div>
+
+<script src="assets/overview/secret-pathways-assets/generated/plates.js"></script>
+<script src="assets/overview/secret-pathways-assets/cloth.js"></script>
+<script>
+(function () {
+  var COMPONENTS_ENABLED = true;           /* Overview aprovado */
+  var root = document.documentElement, nav = document.getElementById('nav');
+  var frame = document.getElementById('overview-frame');
+  var linkO = document.getElementById('nav-overview'), linkC = document.getElementById('nav-components');
+  var burger = nav.querySelector('.nav-burger');
+  var main = document.getElementById('ds-main');
+  var isComp = function (h) { return h === '#components' || h.indexOf('#components-') === 0; };
+  var mode = 'overview', lastY = 0, station = 0, built = false;
+
+  if (!COMPONENTS_ENABLED) linkC.setAttribute('aria-disabled', 'true');
+
+  function post(smooth) {
+    try {
+      frame.contentWindow.postMessage(mode === 'components'
+        ? { ds: 'bg', station: station, smooth: !!smooth } : { ds: 'page' }, '*');
+    } catch (e) {}
+  }
+  function buildOnce() {
+    if (built) return; built = true;
+    requestAnimationFrame(function () { if (window.KageCloth) window.KageCloth.buildCardCloth(); });
+  }
+  function route() {
+    var h = location.hash || '#overview';
+    if (isComp(h) && !COMPONENTS_ENABLED) { history.replaceState(null, '', '#overview'); h = '#overview'; }
+    mode = isComp(h) ? 'components' : 'overview';
+    document.body.classList.toggle('is-components', mode === 'components');
+    document.body.classList.toggle('is-overview', mode === 'overview');
+    linkO.classList.toggle('on', mode === 'overview');
+    linkC.classList.toggle('on', mode === 'components');
+    nav.classList.remove('hide');
+    nav.classList.toggle('stuck', mode === 'components' || lastY > 40);
+    closeMenu();
+    post(false);
+    if (mode !== 'components') return;
+    buildOnce();
+    if (h === '#components') { main.scrollTop = 0; spy(); return; }
+    var el = document.getElementById(h.slice(1));
+    if (el) { el.scrollIntoView({ block: 'start' }); spy(); }
+  }
+
+  addEventListener('message', function (e) {
+    if (e.source !== frame.contentWindow || !e.data) return;
+    if (e.data.ds === 'ready') { document.body.classList.add('ds-overview-ready'); return; }
+    if (e.data.ds !== 'scroll' || mode !== 'overview') return;
+    var y = e.data.y, vh = e.data.vh;
+    nav.classList.toggle('stuck', y > 40);
+    nav.classList.toggle('hide', !nav.classList.contains('menu-open') && y > lastY + 4 && y > vh * .8);
+    lastY = y;
+  });
+  frame.addEventListener('load', function () { post(false); });
+
+  function closeMenu() {
+    nav.classList.remove('menu-open'); burger.classList.remove('active');
+    burger.setAttribute('aria-expanded', 'false'); root.classList.remove('nav-open');
+  }
+  burger.addEventListener('click', function () {
+    if (innerWidth > 820) return;
+    var open = !nav.classList.contains('menu-open');
+    if (open) nav.classList.remove('hide');
+    nav.classList.toggle('menu-open', open); burger.classList.toggle('active', open);
+    burger.setAttribute('aria-expanded', String(open)); root.classList.toggle('nav-open', open);
+  });
+  addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
+  addEventListener('resize', function () { if (innerWidth > 820) closeMenu(); }, { passive: true });
+
+  var groups = [].slice.call(main.querySelectorAll('.ds-group'));
+  var sideLinks = [].slice.call(document.querySelectorAll('#ds-side a'));
+  function spy() {
+    var y = main.scrollTop + 140, cur = groups[0];
+    groups.forEach(function (g) { if (g.offsetTop <= y) cur = g; });
+    sideLinks.forEach(function (a) { a.classList.toggle('is-current', a.getAttribute('href') === '#' + cur.id); });
+    document.body.classList.toggle('ds-scene-clear', cur.id === 'components-backgrounds');
+  }
+  main.addEventListener('scroll', spy, { passive: true });
+
+  [].slice.call(document.querySelectorAll('[data-station]')).forEach(function (b, i, all) {
+    b.addEventListener('click', function () {
+      station = +b.getAttribute('data-station');
+      all.forEach(function (o) { o.classList.toggle('on', o === b); });
+      post(true);
+    });
+  });
+
+  var stageIO = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { e.target.querySelector('.fg').classList.toggle('fg-active', e.isIntersecting); });
+  }, { root: main, threshold: .35 });
+  [].slice.call(document.querySelectorAll('.ds-stage')).forEach(function (s) { stageIO.observe(s); });
+
+  var reveal = document.querySelector('.ds-reveal');
+  function playReveal() {
+    var items = [].slice.call(reveal.querySelectorAll('[data-rv], .mask-line'));
+    items.forEach(function (el) { el.classList.remove('rv-in'); });
+    void reveal.offsetWidth;
+    items.forEach(function (el, i) { setTimeout(function () { el.classList.add('rv-in'); }, 120 + i * 95); });
+  }
+  document.querySelector('[data-replay]').addEventListener('click', playReveal);
+  new IntersectionObserver(function (es, io) {
+    if (es[0].isIntersecting) { io.disconnect(); playReveal(); }
+  }, { root: main, threshold: .3 }).observe(reveal);
+
+  if (!location.hash) history.replaceState(null, '', '#overview');
+  addEventListener('hashchange', route);
+  route();
+})();
+</script>
+</body>
+</html>
